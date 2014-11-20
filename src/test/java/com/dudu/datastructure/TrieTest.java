@@ -42,9 +42,33 @@ public class TrieTest {
     @Test
     public void testRemove() throws Exception {
         trie.put("1",3);
-        Assert.assertEquals(1,trie.size());
+        trie.put("12",3);
+        Assert.assertEquals(2,trie.size());
         Assert.assertNull(trie.remove("2"));
         Assert.assertEquals(new Integer(3),trie.remove("1"));
-        Assert.assertEquals(0,trie.size());
+        Assert.assertEquals(1,trie.size());
+        trie.put("123",3);
+        Assert.assertEquals(2,trie.size());
     }
+
+    @Test
+    public void testContainsValue() throws Exception{
+        trie.put("1",3);
+        Assert.assertTrue(trie.containsValue(3));
+        Assert.assertFalse(trie.containsValue("aaa"));
+    }
+
+    @Test
+    public void testContainsKey()throws Exception{
+        trie.put("1",3);
+        Assert.assertTrue(trie.containsKey("1"));
+        Assert.assertFalse(trie.containsKey(1));
+    }
+
+  /*  @Test
+    public void testContainsKey() throws Exception{
+        trie.put("1",3);
+        Assert.assertFalse(trie.containsKey(2));
+        Assert.assertTrue(trie.containsKey("1"));
+    }*/
 }
