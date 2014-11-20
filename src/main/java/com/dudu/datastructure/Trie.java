@@ -29,6 +29,11 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     }
 
     @Override
+    public boolean containsKey(Object key){
+        return get(key) !=null;
+    }
+
+    @Override
     public V put(String key, V value) {
         if (key == null) throw new UnsupportedOperationException("key should not be null");
         if (value == null) return remove(key);
@@ -38,7 +43,7 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     @Override
     public V get(Object key) {
         if (isValidKey(key)) {
-            return get(root, (String) key, 0);
+            return get(root, (String) key, 0).value;
         }
         return null;
     }
@@ -55,9 +60,9 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         return size;
     }
 
-    private V get(TrieNode<V> node, String key, int d) {
+    private TrieNode<V> get(TrieNode<V> node, String key, int d) {
         if (node == null) return null;
-        if (key.length() == d) return node.value;
+        if (key.length() == d) return node;
         int index = alphabet.toIndex(key.charAt(d));
         return get(node.next[index], key, d + 1);
     }
@@ -77,10 +82,19 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
             V oldValue = x.value;
             x.value = null;
             decrSize();
+            if (isLeaf(x)) x = null;
             return oldValue;
         }
         int index = alphabet.toIndex(key.charAt(d));
         return remove(x.next[index], key, d + 1);
+    }
+
+    private boolean isLeaf(TrieNode<V> x) {
+        if (x.next == null) return true;
+        for (int i = 0; i < x.next.length; i++) {
+            if (x.next[i] != null) return false;
+        }
+        return true;
     }
 
     private V put(TrieNode<V> x, String key, V value, int d) {
@@ -99,8 +113,50 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
 
     @Override
     public Set<Entry<String, V>> entrySet() {
-        return null;
+        return  EntriesWithPrefix("");
     }
+
+    public Set<Entry<String, V>> EntriesWithPrefix(String pre) {
+        Set<Entry<String, V>> entriesSet = new HashSet<Entry<String, V>>();
+        collectEntries(get(root,pre,0),pre,entriesSet);
+        return entriesSet;
+    }
+
+    private void collectEntries(TrieNode<V> x, String pre, Set<Entry<String, V>> entriesSet) {
+        if(x==null) return;
+        if(x.value !=null) entriesSet.add(new TrieEntry<V>(pre,x.value));
+        for(char c= 0; c<R; c++){
+            collectEntries(x.next[c],pre+c,entriesSet);
+        }
+    }
+
+    static class TrieEntry<V> implements Map.Entry<String, V> {
+        String key;
+        V value;
+
+        TrieEntry(String key,V value){
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(V newValue) {
+            V oldValue = value;
+            value = newValue;
+            return oldValue;
+        }
+    }
+
 
     @SuppressWarnings("unchecked")
     private class TrieNode<V> {
