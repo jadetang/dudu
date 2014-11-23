@@ -51,7 +51,6 @@ public class TrieTest {
         trie.put("123",3);
         Assert.assertEquals(2,trie.size());
     }
-    @Ignore
     @Test
     public void testContainsValue() throws Exception{
         trie.put("1",3);
@@ -80,7 +79,6 @@ public class TrieTest {
 
     }
 
-    @Ignore
     @Test(expected = ConcurrentModificationException.class)
     public void testFailFast(){
         trie.put("1",3);
@@ -93,7 +91,15 @@ public class TrieTest {
             it.next();
             trie.remove("1");
         }
+    }
 
+    @Test
+    public void testValues(){
+        trie.put("1",3);
+        trie.put("22",3);
+        trie.put("34444",3);
+        trie.put("55514",3);
+        trie.put("511111", 3);
     }
 
 }
