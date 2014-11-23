@@ -2,9 +2,10 @@ package com.dudu.datastructure;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Administrator on 14-11-19.
@@ -50,7 +51,7 @@ public class TrieTest {
         trie.put("123",3);
         Assert.assertEquals(2,trie.size());
     }
-
+    @Ignore
     @Test
     public void testContainsValue() throws Exception{
         trie.put("1",3);
@@ -58,17 +59,41 @@ public class TrieTest {
         Assert.assertFalse(trie.containsValue("aaa"));
     }
 
+
     @Test
     public void testContainsKey()throws Exception{
         trie.put("1",3);
         Assert.assertTrue(trie.containsKey("1"));
-        Assert.assertFalse(trie.containsKey(1));
+//        Assert.assertFalse(trie.containsKey(1));
     }
 
-  /*  @Test
-    public void testContainsKey() throws Exception{
+    @Test
+    public void testEntrySet() throws Exception{
         trie.put("1",3);
-        Assert.assertFalse(trie.containsKey(2));
-        Assert.assertTrue(trie.containsKey("1"));
-    }*/
+        trie.put("22",3);
+        trie.put("34444",3);
+        trie.put("55514",3);
+        trie.put("511111", 3);
+        Assert.assertEquals(5, trie.entrySet().size());
+        trie.remove("511111");
+        Assert.assertEquals(4, trie.entrySet().size());
+
+    }
+
+    @Ignore
+    @Test(expected = ConcurrentModificationException.class)
+    public void testFailFast(){
+        trie.put("1",3);
+        trie.put("22",3);
+        trie.put("34444",3);
+        trie.put("55514",3);
+        trie.put("511111", 3);
+        Iterator<Map.Entry<String,Integer>> it = trie.entrySet().iterator();
+        while(it.hasNext()){
+            it.next();
+            trie.remove("1");
+        }
+
+    }
+
 }
