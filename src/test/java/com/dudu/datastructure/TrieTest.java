@@ -2,10 +2,11 @@ package com.dudu.datastructure;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * Created by Administrator on 14-11-19.
@@ -71,15 +72,46 @@ public class TrieTest {
         trie.put("1",3);
         trie.put("22",3);
         trie.put("34444",3);
-        trie.put("55514",3);
+        trie.put("55514", 3);
         trie.put("511111", 3);
-        Assert.assertEquals(5, trie.entrySet().size());
-        trie.remove("511111");
-        Assert.assertEquals(4, trie.entrySet().size());
+        Set<Map.Entry<String,Integer>> entrySet = trie.entrySet();
+        Assert.assertEquals(5,entrySet.size());
+        for(Map.Entry<String,Integer> e:entrySet){
+            System.out.println(e);
+        }
 
+        Set<Map.Entry<String,Integer>> entrySet2 = trie.entrySetWithPrefix("5");
+        Assert.assertEquals(2,entrySet2.size());
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @Test
+    public void testKeySet() throws Exception{
+        trie.put("2",3);
+        trie.put("22",3);
+        trie.put("22344",3);
+        trie.put("55514", 3);
+        trie.put("511111", 3);
+        Set<String> keySet = trie.keySet();
+        Assert.assertEquals(5,keySet.size());
+        Set<String> keySet2 = trie.keysSetWithPrefix("22");
+        Assert.assertEquals(2,keySet2.size());
+    }
+
+    @Test
+    public void testValues() throws Exception{
+        trie.put("2",1);
+        trie.put("22",2);
+        trie.put("22344",3);
+        trie.put("55514", 4);
+        trie.put("511111", 5);
+        for(Integer v:trie.values()){
+            System.out.println(v);
+        }
+    }
+
+
+
+   /* @Test(expected = ConcurrentModificationException.class)
     public void testFailFast(){
         trie.put("1",3);
         trie.put("22",3);
@@ -100,6 +132,6 @@ public class TrieTest {
         trie.put("34444",3);
         trie.put("55514",3);
         trie.put("511111", 3);
-    }
+    }*/
 
 }
