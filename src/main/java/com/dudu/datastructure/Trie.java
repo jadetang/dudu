@@ -26,7 +26,7 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     public Trie(Alphabet alphabet) {
         this.alphabet = alphabet;
         R = alphabet.R();
-        root = new Trie<V>.TrieEntry<V>();
+        root = new Trie<V>.TrieEntry<V>(null);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     @Override
     public V get(Object key) {
         validKey(key);
-        return get(root, (String) key, 0).value;
+        return getEntry(root, (String) key, 0).value;
     }
 
     /**
@@ -60,18 +60,11 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         return size;
     }
 
-    private TrieEntry<V> get(TrieEntry<V> node, String key, int d) {
+    private TrieEntry<V> getEntry(TrieEntry<V> node, String key, int d) {
         if (node == null) return null;
         if (key.length() == d) return node;
         int index = alphabet.toIndex(key.charAt(d));
-        return get(node.next[index], key, d + 1);
-    }
-
-    private TrieEntry<V> getEntry(TrieEntry<V> entry, String key, int d) {
-        if (entry == null) return null;
-        if (key.length() == d) return entry;
-        int index = alphabet.toIndex(key.charAt((d)));
-        return getEntry(entry.next[index], key, d + 1);
+        return getEntry(node.next[index], key, d + 1);
     }
 
 
@@ -96,24 +89,24 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     }
 
     private boolean isLeaf(TrieEntry<V> x) {
-        if (x.next == null) return true;
-        for (int i = 0; i < x.next.length; i++) {
-            if (x.next[i] != null) return false;
-        }
-        return true;
+        return x.next == null;
     }
 
     private V put(TrieEntry<V> x, String key, V value, int d) {
         if (key.length() == d) {
             V oldValue = x.value;
             x.value = value;
+            x.key = key;
             incrSize();
             modCount++;
             return oldValue;
         }
         int index = alphabet.toIndex(key.charAt(d));
+        if (x.next == null) {
+            x.next = (TrieEntry<V>[]) new TrieEntry[R];
+        }
         if (x.next[index] == null) {
-            x.next[index] = new TrieEntry<V>();
+            x.next[index] = new TrieEntry<V>(x);
         }
         return put(x.next[index], key, value, d + 1);
     }
@@ -124,6 +117,16 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         return (es != null) ? es : (entrySet = new EntrySet(""));
     }
 
+    public Set<Entry<String, V>> entrySet(String prefix) {
+        if ("".equals(prefix)) {
+            Set<Map.Entry<String, V>> es = entrySet;
+            return (es != null) ? es : (entrySet = new EntrySet(""));
+        } else {
+            return new EntrySet(prefix);
+        }
+
+    }
+
     abstract class PrivateEntryIterator<T> implements Iterator<T> {
         TrieEntry<V> next;
         TrieEntry<V> lastReturned;
@@ -131,7 +134,7 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
 
         PrivateEntryIterator(TrieEntry<V> first) {
             expectedModCount = modCount;
-            next = first;
+            next = findMostLeft(first);
         }
 
         public final boolean hasNext() {
@@ -149,6 +152,7 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         }
 
         public final TrieEntry<V> nextTrieEntry() {
+            if (lastReturned == root) return null;
             TrieEntry<V> e = next;
             if (e == null)
                 throw new NoSuchElementException();
@@ -160,26 +164,48 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         }
 
         private TrieEntry<V> nextTrieEntry(TrieEntry<V> e) {
-            if (e.parent == null) {
-                return nextNotNullEntryInArray(e.next);
+            TrieEntry<V> mostSubLeft = findMostLeft(e);
+            if (mostSubLeft != null) {
+                return mostSubLeft;
             } else {
-                return nextNotNullEntryInArray(e.parent.next, e);
+                int index = indexOf(e.parent.next, e);
+                TrieEntry<V> nextSibling = nextNotNullEntryInArray(e.parent.next, index + 1);
+                if (nextSibling == null) {
+                    return e.parent;
+                } else {
+                    return nextTrieEntry(nextSibling);
+                }
+
+            }
+
+        }
+
+        private TrieEntry<V> findMostLeft(TrieEntry<V> e) {
+            if (e == null) return null;
+            if (e.next == null && e != lastReturned) return e;
+            TrieEntry<V> firstLeftSubEntry = nextNotNullEntryInArray(e.next, 0);
+            TrieEntry<V> firstLeftSubSubEntry = nextNotNullEntryInArray(firstLeftSubEntry.next, 0);
+            if (firstLeftSubSubEntry == null) {
+                return firstLeftSubEntry;
+            } else {
+                return findMostLeft(firstLeftSubSubEntry);
             }
         }
 
-        private TrieEntry<V> nextNotNullEntryInArray(TrieEntry<V>[] trieEntries) {
-            for (int i = 0; i < trieEntries.length; i++) {
-                if (trieEntries[i] != null) return trieEntries[i];
+        private int indexOf(TrieEntry<V>[] next, TrieEntry<V> e) {
+            for (int i = 0; i < next.length; i++) {
+                if (next[i] == e) return i;
+            }
+            return -1;
+        }
+
+        private TrieEntry<V> nextNotNullEntryInArray(TrieEntry<V>[] trieEntries, int beginIndex) {
+            for (int i = beginIndex; i < trieEntries.length; i++) {
+                if (trieEntries[i] != null && trieEntries[i].value != null) return trieEntries[i];
             }
             return null;
         }
 
-        private TrieEntry<V> nextNotNullEntryInArray(TrieEntry<V>[] trieEntries, TrieEntry<V> begin) {
-            for (int i = 0; i < trieEntries.length; i++) {
-                if (trieEntries[i] != null && trieEntries[i] != begin) return trieEntries[i];
-            }
-            return null;
-        }
     }
 
     final class TrieEntryIterator extends PrivateEntryIterator {
@@ -267,40 +293,20 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         }
     }
 
-/*
-    public Set<Entry<String, V>> EntriesWithPrefix(String pre) {
-        Set<Entry<String, V>> entriesSet = new HashSet<Entry<String, V>>();
-        collectEntries(get(root, pre, 0), pre, entriesSet);
-        return entriesSet;
-    }
-*/
-
-  /*  private void collectEntries(TrieEntry<V> x, String pre, Set<Entry<String, V>> entriesSet) {
-        if (x == null) return;
-        if (x.value != null) entriesSet.add(new TrieEntry<V>(pre, x.value));
-        for (char c = 0; c < R; c++) {
-            collectEntries(x.next[c], pre + c, entriesSet);
-        }
-    }*/
 
     static final boolean valEquals(Object o1, Object o2) {
         return (o1 == null ? o2 == null : o1.equals(o2));
     }
 
-    class TrieEntry<V> implements Map.Entry<String, V> {
+    public class TrieEntry<V> implements Map.Entry<String, V> {
         String key;
         V value;
         TrieEntry<V> parent = null;
-        TrieEntry<V>[] next = (TrieEntry<V>[]) new TrieEntry[R];
+        TrieEntry<V>[] next = null;
 
-        //TrieEntry<V> parent;
-        TrieEntry() {
-        }
 
-        TrieEntry(String key, V value, TrieEntry<V> parent) {
+        TrieEntry(TrieEntry<V> parent) {
             this.parent = parent;
-            this.key = key;
-            this.value = value;
         }
 
         @Override

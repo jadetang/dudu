@@ -2,10 +2,11 @@ package com.dudu.datastructure;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
+
+import static java.util.Map.Entry;
 
 /**
  * Created by Administrator on 14-11-19.
@@ -15,7 +16,7 @@ public class TrieTest {
     Trie<Integer> trie;
     @Before
     public void setUp() throws Exception{
-        trie = new Trie<Integer>(Alphabet.ASCII);
+        trie = new Trie<Integer>(Alphabet.DECIMAL);
     }
 
     @Test
@@ -86,7 +87,7 @@ public class TrieTest {
         trie.put("34444",3);
         trie.put("55514",3);
         trie.put("511111", 3);
-        Iterator<Map.Entry<String,Integer>> it = trie.entrySet().iterator();
+        Iterator<Entry<String,Integer>> it = trie.entrySet().iterator();
         while(it.hasNext()){
             it.next();
             trie.remove("1");
@@ -94,12 +95,15 @@ public class TrieTest {
     }
 
     @Test
-    public void testValues(){
-        trie.put("1",3);
-        trie.put("22",3);
-        trie.put("34444",3);
-        trie.put("55514",3);
-        trie.put("511111", 3);
+    public void testValues1(){
+        trie.put("1",1);
+        trie.put("12",2);
+        trie.put("23",3);
+        trie.put("2344",4);
+        Set<Entry<String,Integer>> allSets = trie.entrySet();
+        System.out.println(allSets);
     }
+
+
 
 }
