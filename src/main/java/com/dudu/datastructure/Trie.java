@@ -18,7 +18,6 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     public Trie(Alphabet alphabet) {
         this.alphabet = alphabet;
         R = alphabet.R();
-        root = new Trie<V>.TrieEntry<V>(null, null);
     }
 
 
@@ -28,12 +27,14 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     }
 
     public void clear() {
-        //TODO
+        size = 0;
+        root = null;
     }
 
     @Override
     public V put(String key, V value) {
         validKey(key);
+        if (root == null) root = new TrieEntry<V>(null, null, null);
         if (value == null) return remove(key);
         return put(root, key, value, 0);
     }
@@ -57,6 +58,66 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         return remove(root, (String) key, 0);
     }
 
+    private V remove(TrieEntry<V> x, String key, int d) {
+        if (x == null) return null;
+        if (key.length() == d) {
+            V oldValue = x.value;
+            x.value = null;
+            decrSize();
+            nullEntryRecursive(x);
+            return oldValue;
+        }
+        int index = alphabet.toIndex(key.charAt(d));
+        return remove(x.next[index], key, d + 1);
+    }
+
+    /**
+     * null a trieEntry if it's value is null and it's a leaf of the trie
+     * after null this trieEntry, continue to null its parent recursively
+     *
+     * @param x
+     */
+    private void nullEntryRecursive(TrieEntry<V> x) {
+        if (x == null) return;
+        TrieEntry<V> parent = x.parent == null ? null : x.parent;
+        if (isLeaf(x)) {
+            x.next = null;
+            nullEntryRecursive(parent);
+        } else {
+            return;
+        }
+    }
+
+    /**
+     * null a entry field
+     *
+     * @param x
+     */
+    private void nullEntry(TrieEntry<V> x) {
+        x.key = null;
+        x.value = null;
+        x.next = null;
+        x.parent = null;
+    }
+
+    private boolean isLeaf(TrieEntry<V> x) {
+        if (x != null) {
+            if (x.next != null) {
+                for (int i = 0; i < x.next.length; i++) {
+                    if (x.next[i] != null) {
+                        if (x.next[i].key != null && x.next[i].value != null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+        }
+        return true;
+
+    }
+
+
     @Override
     public Set<String> keySet() {
         return keysSetWithPrefix("");
@@ -79,38 +140,16 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
         return ImmutableSet.copyOf(tempEntrySet);
     }
 
-   public Collection<V> values() {
+    public Collection<V> values() {
         return valuesWithPrefix("");
-   }
+    }
 
-    public Collection<V> valuesWithPrefix(String pre){
+    public Collection<V> valuesWithPrefix(String pre) {
         List<V> tempValueList = new LinkedList<V>();
-        collectValues(get(root,pre,0),pre,tempValueList);
+        collectValues(get(root, pre, 0), pre, tempValueList);
         return ImmutableList.copyOf(tempValueList);
     }
 
-
-
-    private V remove(TrieEntry<V> x, String key, int d) {
-        if (x == null) return null;
-        if (key.length() == d) {
-            V oldValue = x.value;
-            x.value = null;
-            decrSize();
-            if (isLeaf(x)) x = null;
-            return oldValue;
-        }
-        int index = alphabet.toIndex(key.charAt(d));
-        return remove(x.next[index], key, d + 1);
-    }
-
-    private boolean isLeaf(TrieEntry<V> x) {
-        if (x.next == null) return true;
-        for (int i = 0; i < x.next.length; i++) {
-            if (x.next[i] != null) return false;
-        }
-        return true;
-    }
 
     private V put(TrieEntry<V> x, String key, V value, int d) {
         if (key.length() == d) {
@@ -121,8 +160,11 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
             return oldValue;
         }
         int index = alphabet.toIndex(key.charAt(d));
+        if (x.next == null) {
+            x.next = (TrieEntry<V>[]) new TrieEntry[R];
+        }
         if (x.next[index] == null) {
-            x.next[index] = new TrieEntry<V>(null, null);
+            x.next[index] = new TrieEntry<V>(null, null, x);
         }
         return put(x.next[index], key, value, d + 1);
     }
@@ -160,7 +202,6 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     }
 
 
-
     private void incrSize() {
         size++;
     }
@@ -181,12 +222,14 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     class TrieEntry<V> implements Map.Entry<String, V> {
         String key;
         V value;
-        TrieEntry<V>[] next = (TrieEntry<V>[]) new TrieEntry[R];
+        TrieEntry<V>[] next;
+        TrieEntry<V> parent;
 
 
-        TrieEntry(String key, V value) {
+        TrieEntry(String key, V value, TrieEntry<V> parent) {
             this.key = key;
             this.value = value;
+            this.parent = parent;
         }
 
         @Override

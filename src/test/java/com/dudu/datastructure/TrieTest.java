@@ -52,6 +52,19 @@ public class TrieTest {
         trie.put("123",3);
         Assert.assertEquals(2,trie.size());
     }
+
+    @Test
+    public void testRemove2() throws Exception{
+        trie.put("1",2);
+        trie.put("123",2);
+        trie.put("12345",2);
+        trie.remove("12345");
+
+
+
+
+
+    }
     @Test
     public void testContainsValue() throws Exception{
         trie.put("1",3);
@@ -107,6 +120,20 @@ public class TrieTest {
         for(Integer v:trie.values()){
             System.out.println(v);
         }
+    }
+
+    @Test
+    public void testClear() throws Exception{
+        trie.put("2",1);
+        trie.put("22",2);
+        trie.put("22344",3);
+        trie.put("55514", 4);
+        trie.put("511111", 5);
+        Assert.assertEquals(5, trie.size());
+        trie.clear();
+        Assert.assertEquals(0, trie.size());
+        trie.put("2", 1);
+        Assert.assertEquals(1, trie.size());
     }
 
 
