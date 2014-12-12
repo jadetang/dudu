@@ -42,7 +42,8 @@ public class Trie<V> extends AbstractMap<String, V> implements Map<String, V> {
     @Override
     public V get(Object key) {
         validKey(key);
-        return get(root, (String) key, 0).value;
+        TrieEntry<V> candidate=  get(root, (String) key, 0);
+        return candidate !=null?candidate.value:null;
     }
 
 

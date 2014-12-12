@@ -4,19 +4,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Administrator on 14-11-19.
  */
-public class TrieTest {
+public class TrieTest2{
 
-    Trie<Integer> trie;
+    Trie2<Integer> trie;
     @Before
     public void setUp() throws Exception{
-        trie = new Trie<Integer>(Alphabet.ASCII);
+        trie = new Trie2<Integer>(Alphabet.DECIMAL);
     }
 
     @Test
@@ -38,7 +36,10 @@ public class TrieTest {
 
     @Test
     public void testSize() throws Exception {
-
+        trie.put("1",1);
+        trie.put("2",2);
+        trie.put("3",3);
+        Assert.assertEquals(3, trie.size());
     }
 
     @Test
@@ -58,16 +59,35 @@ public class TrieTest {
         trie.put("1",2);
         trie.put("123",2);
         trie.put("12345",2);
+        trie.put("12343",1);
         trie.remove("12345");
+        trie.remove("12343");
     }
 
 
-
-
-
+    @Test
+    public void testRemove3() throws Exception{
+        trie.put("1",2);
+        trie.put("123",2);
+        trie.put("12345",2);
+        trie.put("12343",1);
+        Assert.assertEquals(4, trie.size());
+        trie.remove("1234");
+        Assert.assertEquals(4,trie.size());
+    }
     @Test
     public void testContainsValue() throws Exception{
-        trie.put("1",3);
+        trie.put("122", 3);
+        trie.put("1333", 3);
+        trie.put("122", 3);
+        trie.put("1224", 3);
+        trie.put("1521", 3);
+        trie.put("4441", 3);
+        trie.put("12", 3);
+        trie.put("1333", 3);
+        trie.put("3", 3);
+        trie.put("23", 3);
+        trie.put("1", 3);
         Assert.assertTrue(trie.containsValue(3));
         Assert.assertFalse(trie.containsValue("aaa"));
     }
@@ -75,14 +95,47 @@ public class TrieTest {
 
     @Test
     public void testContainsKey()throws Exception{
-        trie.put("1",3);
+        trie.put("122", 3);
+        trie.put("1333", 3);
+        trie.put("122", 3);
+        trie.put("1224", 3);
+        trie.put("1521", 3);
+        trie.put("4441", 3);
+        trie.put("12", 3);
+        trie.put("1333", 3);
+        trie.put("3", 3);
+        trie.put("23", 3);
+        trie.put("1", 3);
         Assert.assertTrue(trie.containsKey("1"));
         Assert.assertFalse(trie.containsKey("2"));
-//        Assert.assertFalse(trie.containsKey(1));
     }
 
     @Test
     public void testEntrySet() throws Exception{
+        trie.put("122", 3);
+        trie.put("1333", 3);
+        trie.put("122", 3);
+        trie.put("1224", 3);
+        trie.put("1521", 3);
+        trie.put("4441", 3);
+        trie.put("12", 3);
+        trie.put("1333", 3);
+        trie.put("3", 3);
+        trie.put("23", 3);
+        trie.put("1", 3);
+        for(Map.Entry<String,Integer> entry:trie.entrySet()){
+            System.out.println(entry);
+        }
+        trie.entrySet().clear();
+        for(Map.Entry<String,Integer> entry:trie.entrySet()){
+            System.out.println(entry);
+        }
+    }
+
+
+
+    @Test
+    public void testEntrySet2() throws Exception{
         trie.put("1",3);
         trie.put("22",3);
         trie.put("34444",3);
@@ -93,9 +146,6 @@ public class TrieTest {
         for(Map.Entry<String,Integer> e:entrySet){
             System.out.println(e);
         }
-
-        Set<Map.Entry<String,Integer>> entrySet2 = trie.entrySetWithPrefix("5");
-        Assert.assertEquals(2,entrySet2.size());
     }
 
     @Test
@@ -107,17 +157,18 @@ public class TrieTest {
         trie.put("511111", 3);
         Set<String> keySet = trie.keySet();
         Assert.assertEquals(5,keySet.size());
-        Set<String> keySet2 = trie.keysSetWithPrefix("22");
-        Assert.assertEquals(2,keySet2.size());
+        for(String key:trie.keySet()){
+            System.out.println(key);
+        }
     }
 
     @Test
     public void testValues() throws Exception{
-        trie.put("2",1);
-        trie.put("22",2);
-        trie.put("22344",3);
-        trie.put("55514", 4);
-        trie.put("511111", 5);
+        trie.put("1",1);
+        trie.put("2",2);
+        trie.put("4",3);
+        trie.put("3", 4);
+        trie.put("5", 5);
         for(Integer v:trie.values()){
             System.out.println(v);
         }
@@ -139,7 +190,7 @@ public class TrieTest {
 
 
 
-   /* @Test(expected = ConcurrentModificationException.class)
+    @Test(expected = ConcurrentModificationException.class)
     public void testFailFast(){
         trie.put("1",3);
         trie.put("22",3);
@@ -153,13 +204,5 @@ public class TrieTest {
         }
     }
 
-    @Test
-    public void testValues(){
-        trie.put("1",3);
-        trie.put("22",3);
-        trie.put("34444",3);
-        trie.put("55514",3);
-        trie.put("511111", 3);
-    }*/
 
 }
