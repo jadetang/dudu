@@ -11,10 +11,10 @@ import java.util.*;
  */
 public class TrieTest2{
 
-    Trie2<Integer> trie;
+    TrieMap<Integer> trie;
     @Before
     public void setUp() throws Exception{
-        trie = new Trie2<Integer>(Alphabet.DECIMAL);
+        trie = new TrieMap<Integer>();
     }
 
     @Test
@@ -172,6 +172,9 @@ public class TrieTest2{
         for(Integer v:trie.values()){
             System.out.println(v);
         }
+        Assert.assertEquals(5,trie.values().size());
+        trie.values().clear();
+        Assert.assertEquals(0,trie.size());
     }
 
     @Test
@@ -203,6 +206,71 @@ public class TrieTest2{
             trie.remove("1");
         }
     }
+
+    @Test
+    public void testLongestPrefixKey(){
+        trie = new TrieMap<Integer>();
+        trie.put("she",1);
+        trie.put("shel",2);
+        trie.put("shellx",2);
+        String x = trie.longestPrefixOf("shell");
+        Assert.assertEquals("shel",x);
+        Assert.assertNull(trie.longestPrefixOf("xxxxx"));
+    }
+
+    @Test
+    public void testEntrySetWithPrefix(){
+        trie = new TrieMap<Integer>();
+        trie.put("she",1);
+        trie.put("shel",2);
+        trie.put("shellx",2);
+        for(Map.Entry<String,Integer> entry: trie.entryWithPrefix("shell")){
+            System.out.println(entry);
+        }
+
+       Iterator<Map.Entry<String,Integer>> it = trie.entryWithPrefix("sh").iterator();
+       while (it.hasNext()){
+           Map.Entry<String,Integer> entry = it.next();
+           if(entry.getKey().equals("she")){
+               it.remove();
+           }
+       }
+       Assert.assertNull(trie.get("she"));
+       Assert.assertEquals(2, trie.size());
+
+    }
+
+
+    @Test
+    public void testValueSetWithPreifx(){
+        trie.put("one1",1);
+        trie.put("one2",2);
+        trie.put("one3",3);
+        trie.put("one4",4);
+        trie.put("one5",5);
+        trie.put("one6",6);
+        trie.put("one7",7);
+        for(Integer i:trie.valuesWithPrefix("one")){
+            Assert.assertTrue(trie.containsValue(i));
+            System.out.println(i);
+        }
+    }
+
+    @Test
+    public void testKeySetWithPrefix(){
+        trie.put("one1",1);
+        trie.put("one2",2);
+        trie.put("one3",3);
+        trie.put("one4",4);
+        trie.put("one5",5);
+        trie.put("one6",6);
+        trie.put("one7",7);
+        for(String i:trie.keysWithPrefix("one")){
+            Assert.assertTrue(trie.containsKey(i));
+            System.out.println(i);
+        }
+    }
+
 
 
 }

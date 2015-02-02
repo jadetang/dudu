@@ -7,7 +7,7 @@ import java.util.*;
  * @version 1.0
  * @since 1.0
  */
-public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>, Cloneable, java.io.Serializable {
+public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Cloneable, java.io.Serializable {
 
     private Alphabet alphabet;
     private static int R;
@@ -19,6 +19,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
     private transient int modCount = 0;
     private transient volatile Set<String> keySet = null;
     private transient volatile Collection<V> values = null;
+
 
 
     public TrieMap() {
@@ -60,12 +61,40 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
         return put(x.next[index], key, value, d + 1);
     }
 
-
-    public Iterator<String> keyIterator() {
-        return new KeyIterator(getFirstEntry());
+    @Override
+    public String longestPrefixOf(String query) {
+        int length = longestPrefixOf(root, query, 0, 0);
+        return length == 0 ? null: query.substring(0,length);
     }
 
-    final class KeyIterator extends PrivateEntryIterator {
+    @Override
+    public Iterable<String> keysWithPrefix(String prefix) {
+        Entry<V> entry = getEntry(root,prefix,0);
+        return  entry.isString()? new KeyWithPrefixIterable(entry):new KeyWithPrefixIterable(successor(entry));
+
+    }
+
+    @Override
+    public Iterable<Map.Entry<String, V>> entryWithPrefix(String prefix) {
+        Entry<V> entry = getEntry(root,prefix,0);
+        return  entry.isString()? new EntryWithPrefixIterable(entry):new EntryWithPrefixIterable(successor(entry));
+    }
+
+    @Override
+    public Iterable<V> valuesWithPrefix(String prefix) {
+        Entry<V> entry = getEntry(root,prefix,0);
+        return  entry.isString()? new ValueWithPrefixIterable(entry):new ValueWithPrefixIterable(successor(entry));
+    }
+
+    private int longestPrefixOf(Entry<V> x, String query, int d, int length) {
+        if(x == null) return length;
+        if(x.isString()) length = d;
+        if(query.length() == d) return length;
+        int index = alphabet.toIndex(query.charAt(d));
+        return longestPrefixOf(x.next[index],query,d+1,length);
+    }
+
+    private final class KeyIterator extends PrivateEntryIterator {
         KeyIterator(Entry<V> first) {
             super(first);
         }
@@ -73,7 +102,6 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
             return nextEntry().key;
         }
     }
-
 
     @Override
     public V get(Object key) {
@@ -130,6 +158,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
     }
 
     public void clear() {
+        modCount++;
         size = 0;
         root = null;
     }
@@ -364,7 +393,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
         return (o1 == null ? o2 == null : o1.equals(o2));
     }
 
-    abstract class PrivateEntryIterator<T> implements Iterator<T> {
+    private abstract class PrivateEntryIterator<T> implements Iterator<T> {
         Entry<V> next;
         Entry<V> lastReturned;
         int expectedModCount;
@@ -413,7 +442,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
     }
 
 
-    final class EntryIterator extends PrivateEntryIterator<Map.Entry<String, V>> {
+    private final class EntryIterator extends PrivateEntryIterator<Map.Entry<String, V>> {
         EntryIterator(Entry<V> first) {
             super(first);
         }
@@ -423,7 +452,44 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
         }
     }
 
-    class EntrySet extends AbstractSet<Map.Entry<String, V>> {
+
+    private class EntryWithPrefixIterable implements Iterable<Map.Entry<String,V>>{
+        private Entry<V> startEntry;
+
+        EntryWithPrefixIterable(Entry<V> start){
+            startEntry = start;
+        }
+        @Override
+        public Iterator<Map.Entry<String, V>> iterator() {
+            return new EntryIterator(startEntry);
+        }
+    }
+
+    private class ValueWithPrefixIterable implements Iterable<V>{
+        private Entry<V> startEntry;
+        ValueWithPrefixIterable(Entry<V> start){
+            startEntry = start;
+        }
+        @Override
+        public Iterator<V> iterator() {
+            return new ValueIterator(startEntry);
+        }
+    }
+
+    private class KeyWithPrefixIterable implements Iterable<String>{
+        private Entry<V> startEntry;
+        KeyWithPrefixIterable(Entry<V> start){
+            startEntry = start;
+        }
+
+        @Override
+        public Iterator<String> iterator(){
+            return new KeyIterator(startEntry);
+        }
+    }
+
+
+    private class EntrySet extends AbstractSet<Map.Entry<String, V>> {
 
         @Override
         public Iterator<Map.Entry<String, V>> iterator() {
@@ -481,12 +547,16 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
     }
 
     private final class KeySet extends AbstractSet<String> {
+
         public Iterator<String> iterator() {
             return new KeyIterator(getFirstEntry());
         }
+
+        @Override
         public int size() {
             return size;
         }
+
         public boolean contains(Object o) {
             return containsKey(o);
         }
@@ -499,7 +569,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
     }
 
 
-    final class ValueIterator extends PrivateEntryIterator<V> {
+    private final class ValueIterator extends PrivateEntryIterator<V> {
         ValueIterator(Entry<V> first) {
             super(first);
         }
@@ -514,7 +584,9 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Map<String, V>
     }
 
 
-    class Values extends AbstractCollection<V> {
+    private class Values extends AbstractCollection<V> {
+
+
         public Iterator<V> iterator() {
             return new ValueIterator(getFirstEntry());
         }
