@@ -1,4 +1,4 @@
-package com.dudu.algorithm;
+package github.jadetang.dudu.algorithm;
 
 import java.util.Random;
 
