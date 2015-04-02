@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure;
 
 import org.junit.Assert;
 import org.junit.Before;

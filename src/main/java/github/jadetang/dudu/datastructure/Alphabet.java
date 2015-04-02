@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure;
 /*************************************************************************
  *  Compilation:  javac Alphabet.java
  *  Execution:    java  Alphabet

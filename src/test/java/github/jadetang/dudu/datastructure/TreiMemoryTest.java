@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure;
 
 import com.javamex.classmexer.MemoryUtil;
 import org.apache.commons.lang3.RandomStringUtils;

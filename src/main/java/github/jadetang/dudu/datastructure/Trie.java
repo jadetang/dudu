@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
