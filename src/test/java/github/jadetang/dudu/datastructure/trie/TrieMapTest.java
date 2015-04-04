@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure.trie;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Created by Administrator on 14-11-19.
  */
-public class TrieTest2{
+public class TrieMapTest {
 
     TrieMap<Integer> trie;
     @Before

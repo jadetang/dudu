@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure.trie;
 
 import java.util.Map;
 
@@ -37,5 +37,6 @@ public interface Trie<V> extends Map<String,V> {
      * @return all of the Values in the Trie that start with <tt>prefix</tt>,
      */
     public Iterable<V> valuesWithPrefix(String prefix);
+
 
 }

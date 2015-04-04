@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure.trie;
 
 import com.google.common.collect.Lists;
 import org.junit.Assert;

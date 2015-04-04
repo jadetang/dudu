@@ -1,4 +1,4 @@
-package com.dudu.datastructure;
+package github.jadetang.dudu.datastructure.trie;
 
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -7,7 +7,7 @@ import java.util.Iterator;
 /**
  * Created by jadetang on 15-2-2.
  */
-public class TrieSet extends AbstractSet<String> implements TSet, Cloneable, java.io.Serializable {
+public class TrieSet extends AbstractSet<String> implements TSet, java.io.Serializable {
 
     private transient TrieMap<Object> trieMap;
 
