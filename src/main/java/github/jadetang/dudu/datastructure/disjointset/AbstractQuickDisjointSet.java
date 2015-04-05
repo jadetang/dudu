@@ -13,18 +13,25 @@ public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
 
     protected int id[];
     protected Map<T, Integer> indexMap = new HashMap();
-    protected int count;
+    protected int count= 0;
+    protected int size = 0;
+    protected static int DEFAULT_SIZE = 10;
 
     public AbstractQuickDisjointSet(Set<T> set) {
-        Set<T> tempSet = new HashSet<T>(set);
+        Set<T> tempSet = new HashSet<>(set);
         count = tempSet.size();
-        id = new int[tempSet.size()];
-        int index = 0;
+        size = tempSet.size();
+        id = new int[tempSet.size() + 1];
+        int index = 1;
         for (T t : tempSet) {
             id[index] = index;
             indexMap.put(t, index);
             index++;
         }
+    }
+
+    public AbstractQuickDisjointSet(){
+        id = new int[DEFAULT_SIZE+1];
     }
 
     @Override
@@ -36,6 +43,30 @@ public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
     public int count() {
         return count;
     }
+
+
+    @Override
+    public void add(T t) {
+        if (indexMap.keySet().contains(t)) {
+            throw new IllegalArgumentException("the element " + t + " is already in the set");
+        } else {
+            if (isFull()) {
+                resize();
+            }
+            indexMap.put(t,++size);
+            id[size] = size;
+            count++;
+        }
+    }
+
+    private boolean isFull() {
+        return size == id.length -1 ;
+    }
+
+    private void resize() {
+        id = Arrays.copyOf(id, id.length * 2 - 1);
+    }
+
 
     protected int indexOf(T p) {
         Integer index = indexMap.get(p);
@@ -62,5 +93,6 @@ public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
     public String toString() {
         return collect().toString();
     }
+
 
 }

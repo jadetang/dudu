@@ -32,4 +32,12 @@ public interface DisjointSet<T> {
      */
     public int count();
 
+
+    /**
+     * add an element to the disjoint set
+     * throw IllegalArgumentException if the element is already in
+     * the set
+     */
+    public void add(T t);
+
 }

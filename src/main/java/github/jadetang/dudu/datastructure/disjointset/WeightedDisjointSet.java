@@ -10,13 +10,20 @@ import java.util.Set;
  */
 public class WeightedDisjointSet<T> extends AbstractQuickDisjointSet<T> {
 
-    private int[]size;
+    private int[] sz;
+
+    public WeightedDisjointSet(){
+        super();
+        sz = new int[DEFAULT_SIZE+1];
+        Arrays.fill(sz,0);
+    }
 
 
     public WeightedDisjointSet(Set<T> set) {
         super(set);
-        size = new int[set.size()];
-        Arrays.fill(size,1);
+        sz = new int[set.size()+1];
+        Arrays.fill(sz,1);
+        sz[0] = 0;
     }
 
     @Override
@@ -26,12 +33,12 @@ public class WeightedDisjointSet<T> extends AbstractQuickDisjointSet<T> {
         if(rootP == rootQ ){
             return;
         }else {
-            if(size[rootP]<size[rootQ]){
+            if(sz[rootP]< sz[rootQ]){
                 id[rootP] = rootQ;
-                size[rootP] += size[rootQ];
+                sz[rootP] += sz[rootQ];
             }else{
                 id[rootQ] = rootP;
-                size[rootQ] += size[rootP];
+                sz[rootQ] += sz[rootP];
             }
             count--;
         }
@@ -52,5 +59,14 @@ public class WeightedDisjointSet<T> extends AbstractQuickDisjointSet<T> {
             id[i] = index;
         }
         return index;
+    }
+
+    @Override
+    public void add(T t){
+        super.add(t);
+        if( size > sz.length-1){
+            sz = Arrays.copyOf(sz,sz.length*2-1);
+        }
+        sz[size] = 1;
     }
 }
