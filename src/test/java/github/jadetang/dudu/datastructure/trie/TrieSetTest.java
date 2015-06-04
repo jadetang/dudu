@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 
 public class TrieSetTest {
@@ -55,6 +56,7 @@ public class TrieSetTest {
 
     @Test
     public void testKeysWithPrefix() throws Exception {
-
+        Date d  = new Date();
+        System.out.println(d.toString());
     }
 }

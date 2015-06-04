@@ -21,7 +21,6 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
     private transient volatile Collection<V> values = null;
 
 
-
     public TrieMap() {
         this(Alphabet.ASCII);
     }
@@ -49,8 +48,10 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
         if (key.length() == d) {
             V oldValue = x.value;
             x.value = value;
+            if(oldValue != x.value && x.isEmpty()) {
+                size++;
+            }
             x.key = key;
-            size++;
             modCount++;
             return oldValue;
         }
@@ -64,40 +65,41 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
     @Override
     public String longestPrefixOf(String query) {
         int length = longestPrefixOf(root, query, 0, 0);
-        return length == 0 ? null: query.substring(0,length);
+        return length == 0 ? null : query.substring(0, length);
     }
 
     @Override
     public Iterable<String> keysWithPrefix(String prefix) {
-        Entry<V> entry = getEntry(root,prefix,0);
-        return  entry.isString()? new KeyWithPrefixIterable(entry):new KeyWithPrefixIterable(successor(entry));
+        Entry<V> entry = getEntry(root, prefix, 0);
+        return entry.noEmpty() ? new KeyWithPrefixIterable(entry) : new KeyWithPrefixIterable(successor(entry));
 
     }
 
     @Override
     public Iterable<Map.Entry<String, V>> entryWithPrefix(String prefix) {
-        Entry<V> entry = getEntry(root,prefix,0);
-        return  entry.isString()? new EntryWithPrefixIterable(entry):new EntryWithPrefixIterable(successor(entry));
+        Entry<V> entry = getEntry(root, prefix, 0);
+        return entry.noEmpty() ? new EntryWithPrefixIterable(entry) : new EntryWithPrefixIterable(successor(entry));
     }
 
     @Override
     public Iterable<V> valuesWithPrefix(String prefix) {
-        Entry<V> entry = getEntry(root,prefix,0);
-        return  entry.isString()? new ValueWithPrefixIterable(entry):new ValueWithPrefixIterable(successor(entry));
+        Entry<V> entry = getEntry(root, prefix, 0);
+        return entry.noEmpty() ? new ValueWithPrefixIterable(entry) : new ValueWithPrefixIterable(successor(entry));
     }
 
     private int longestPrefixOf(Entry<V> x, String query, int d, int length) {
-        if(x == null) return length;
-        if(x.isString()) length = d;
-        if(query.length() == d) return length;
+        if (x == null) return length;
+        if (x.noEmpty()) length = d;
+        if (query.length() == d) return length;
         int index = alphabet.toIndex(query.charAt(d));
-        return longestPrefixOf(x.next[index],query,d+1,length);
+        return longestPrefixOf(x.next[index], query, d + 1, length);
     }
 
     private final class KeyIterator extends PrivateEntryIterator {
         KeyIterator(Entry<V> first) {
             super(first);
         }
+
         public String next() {
             return nextEntry().key;
         }
@@ -135,11 +137,11 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
 
 
     private V removeEntry(Entry<V> x, String key, int d) {
-        if (x == null) return null;
+        if (x == null ) return null;
         if (key.length() == d) {
             V oldValue = x.value;
             x.value = null;
-            if (x.isString()) {
+            if (x.noEmpty()) {
                 x.key = null;
                 size--;
                 modCount++;
@@ -164,9 +166,9 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
     }
 
     private void nullEntryRecursive(Entry<V> x) {
-        if (x == null) return;
+        if (x == null || x == root ) return;
         //Entry<V> parent = x.parent == null ? null : x.parent;
-        if (isLeaf(x) && !x.isString()) {
+        if (isLeaf(x) && !x.noEmpty()) {
             x.next = null;
             x.parent.next[indexOf(x.parent.next, x)] = null;
         }
@@ -205,7 +207,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
         if (x == root) {
             return null;
         }
-        if (x.parent.isString()) {
+        if (x.parent.noEmpty()) {
             return x.parent;
         } else {
             return predecessorOfSibling(x.parent);
@@ -218,7 +220,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
         } else {
             int endIndex = indexOf(x.parent.next, x);
             for (int i = endIndex - 1; i >= 0; i--) {
-                if (x.parent.next[i] != null && x.parent.next[i].isString()) {
+                if (x.parent.next[i] != null && x.parent.next[i].noEmpty()) {
                     return x.parent.next[i];
                 } else {
                     Entry<V> candidate = predecessorOfSubTrie(x.parent.next[i]);
@@ -236,7 +238,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
             return null;
         }
         for (int i = R - 1; i >= 0; i--) {
-            if (x.next[i] != null && x.next[i].isString()) {
+            if (x.next[i] != null && x.next[i].noEmpty()) {
                 return x.next[i];
             } else {
                 Entry<V> candidate = predecessorOfSubTrie(x.next[i]);
@@ -253,7 +255,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
             return null;
         }
         for (int i = 0; i < R; i++) {
-            if (x.next[i] != null && x.next[i].isString()) {
+            if (x.next[i] != null && x.next[i].noEmpty()) {
                 return x.next[i];
             } else {
                 Entry<V> candidate = successorOfSubTrie(x.next[i]);
@@ -271,7 +273,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
         } else {
             int beginIndex = indexOf(x.parent.next, x) + 1;
             for (int i = beginIndex; i < x.parent.next.length; i++) {
-                if (x.parent.next[i] != null && x.parent.next[i].isString()) {
+                if (x.parent.next[i] != null && x.parent.next[i].noEmpty()) {
                     return x.parent.next[i];
                 } else {
                     Entry<V> candidate = successorOfSubTrie(x.parent.next[i]);
@@ -351,7 +353,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
         Entry<V>[] next;
         Entry<V> parent;
 
-        public boolean isString() {
+        private boolean noEmpty() {
             return key != null;
         }
 
@@ -380,6 +382,10 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
         @Override
         public String toString() {
             return getKey() + "=" + getValue();
+        }
+
+        public boolean isEmpty() {
+            return !noEmpty();
         }
     }
 
@@ -453,37 +459,41 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
     }
 
 
-    private class EntryWithPrefixIterable implements Iterable<Map.Entry<String,V>>{
+    private class EntryWithPrefixIterable implements Iterable<Map.Entry<String, V>> {
         private Entry<V> startEntry;
 
-        EntryWithPrefixIterable(Entry<V> start){
+        EntryWithPrefixIterable(Entry<V> start) {
             startEntry = start;
         }
+
         @Override
         public Iterator<Map.Entry<String, V>> iterator() {
             return new EntryIterator(startEntry);
         }
     }
 
-    private class ValueWithPrefixIterable implements Iterable<V>{
+    private class ValueWithPrefixIterable implements Iterable<V> {
         private Entry<V> startEntry;
-        ValueWithPrefixIterable(Entry<V> start){
+
+        ValueWithPrefixIterable(Entry<V> start) {
             startEntry = start;
         }
+
         @Override
         public Iterator<V> iterator() {
             return new ValueIterator(startEntry);
         }
     }
 
-    private class KeyWithPrefixIterable implements Iterable<String>{
+    private class KeyWithPrefixIterable implements Iterable<String> {
         private Entry<V> startEntry;
-        KeyWithPrefixIterable(Entry<V> start){
+
+        KeyWithPrefixIterable(Entry<V> start) {
             startEntry = start;
         }
 
         @Override
-        public Iterator<String> iterator(){
+        public Iterator<String> iterator() {
             return new KeyIterator(startEntry);
         }
     }
@@ -560,9 +570,11 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
         public boolean contains(Object o) {
             return containsKey(o);
         }
+
         public boolean remove(Object o) {
             return TrieMap.this.remove(o) != null;
         }
+
         public void clear() {
             TrieMap.this.clear();
         }
@@ -613,7 +625,6 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
             TrieMap.this.clear();
         }
     }
-
 
 
 }
