@@ -7,10 +7,10 @@ import java.util.*;
  * @version 1.0
  * @since 1.0
  */
-public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Cloneable, java.io.Serializable {
+public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.io.Serializable {
 
     private Alphabet alphabet;
-    private static int R;
+    private int R;
     private Entry<V> root;
     private int size;
 
@@ -296,58 +296,8 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, Clone
     }
 
 
-    public static void main(String[] args) {
-        TrieMap<String> trie = new TrieMap<String>(Alphabet.LOWERCASE);
-       /* TreeSet<String> treeSet = new TreeSet<String>();
-        for (int i = 0; i < 100; i++) {
-            StringBuilder sb = new StringBuilder();
-            Random random = new Random();
-            int size = random.nextInt(20);
-            for (int j = 0; j < size; j++) {
-                char c = Alphabet.LOWERCASE.toChar(random.nextInt(26));
-                sb.append(c);
-            }
-            trie.put(sb.toString(), sb.toString());
-            treeSet.add(sb.toString());
-        }*/
 
-     /*   Entry<String> next = trie.successor(trie.root);
-        while (next != null) {
-            System.out.println(next.getKey());
-            next = trie.successor(next);
-        }
-        System.out.println("---------------------");
-        for (String x : treeSet) {
-            System.out.println(x);
-        }*/
-
-        trie.put("a", "a");
-        trie.put("aba", "a");
-        trie.put("abc", "a");
-        trie.put("abef", "a");
-        trie.put("ac", "a");
-        trie.put("ad", "a");
-
-        Entry<String> next = trie.successor(trie.root);
-        while (next != null) {
-            System.out.println(next.getKey());
-            next = trie.successor(next);
-        }
-        System.out.println("-------------------------");
-        Entry<String> last = trie.successor(trie.root);
-        for (int i = 0; i < trie.size() - 1; i++) {
-            last = trie.successor(last);
-        }
-        System.out.println(last);
-        System.out.println("-------------------------");
-        for (Entry<String> x = trie.predecessor(last); x != null; x = trie.predecessor(x)) {
-            System.out.println(x);
-        }
-
-    }
-
-
-    static class Entry<V> implements Map.Entry<String, V> {
+    private class Entry<V> implements Map.Entry<String, V> {
         String key;
         V value;
         Entry<V>[] next;

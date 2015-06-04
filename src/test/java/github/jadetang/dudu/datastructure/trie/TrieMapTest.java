@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Created by Administrator on 14-11-19.
  */
-public class TrieTest2{
+public class TrieMapTest {
 
     TrieMap<Integer> trie;
     @Before
