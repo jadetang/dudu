@@ -60,7 +60,7 @@ public class Kth {
 
     private static boolean less(Comparable o1, Comparable o2) {
         int cmp = o1.compareTo(o2);
-        return cmp == -1;
+        return cmp < 0;
     }
 
 

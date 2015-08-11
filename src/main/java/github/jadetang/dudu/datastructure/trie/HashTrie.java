@@ -221,7 +221,7 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
                     break;
                 }
             }
-            assert !x.parent.children.containsKey(x);
+            assert !x.parent.children.containsValue(x);
         }
         if (x.parent != null) {
             nullEntryRecursive(x.parent);
