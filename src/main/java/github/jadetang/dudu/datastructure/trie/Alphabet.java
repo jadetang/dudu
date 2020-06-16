@@ -1,4 +1,5 @@
 package github.jadetang.dudu.datastructure.trie;
+
 /*************************************************************************
  *  Compilation:  javac Alphabet.java
  *  Execution:    java  Alphabet
@@ -13,18 +14,20 @@ package github.jadetang.dudu.datastructure.trie;
  *************************************************************************/
 
 public class Alphabet {
-    public static final Alphabet BINARY         = new Alphabet("01");
-    public static final Alphabet OCTAL          = new Alphabet("01234567");
-    public static final Alphabet DECIMAL        = new Alphabet("0123456789");
-    public static final Alphabet HEXADECIMAL    = new Alphabet("0123456789ABCDEF");
-    public static final Alphabet DNA            = new Alphabet("ACTG");
-    public static final Alphabet LOWERCASE      = new Alphabet("abcdefghijklmnopqrstuvwxyz");
-    public static final Alphabet UPPERCASE      = new Alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    public static final Alphabet PROTEIN        = new Alphabet("ACDEFGHIKLMNPQRSTVWY");
-    public static final Alphabet BASE64         = new Alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-    public static final Alphabet ASCII          = new Alphabet(128);
+
+    public static final Alphabet BINARY = new Alphabet("01");
+    public static final Alphabet OCTAL = new Alphabet("01234567");
+    public static final Alphabet DECIMAL = new Alphabet("0123456789");
+    public static final Alphabet HEXADECIMAL = new Alphabet("0123456789ABCDEF");
+    public static final Alphabet DNA = new Alphabet("ACTG");
+    public static final Alphabet LOWERCASE = new Alphabet("abcdefghijklmnopqrstuvwxyz");
+    public static final Alphabet UPPERCASE = new Alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    public static final Alphabet PROTEIN = new Alphabet("ACDEFGHIKLMNPQRSTVWY");
+    public static final Alphabet BASE64 = new Alphabet(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+    public static final Alphabet ASCII = new Alphabet(128);
     public static final Alphabet EXTENDED_ASCII = new Alphabet(256);
-    public static final Alphabet UNICODE16      = new Alphabet(65536);
+    public static final Alphabet UNICODE16 = new Alphabet(65536);
 
     private char[] alphabet;     // the characters in the alphabet
     private int[] inverse;       // indices
@@ -37,20 +40,23 @@ public class Alphabet {
         boolean[] unicode = new boolean[Character.MAX_VALUE];
         for (int i = 0; i < alpha.length(); i++) {
             char c = alpha.charAt(i);
-            if (unicode[c])
+            if (unicode[c]) {
                 throw new IllegalArgumentException("Illegal alphabet: repeated character = '" + c + "'");
+            }
             unicode[c] = true;
         }
 
         alphabet = alpha.toCharArray();
         R = alpha.length();
         inverse = new int[Character.MAX_VALUE];
-        for (int i = 0; i < inverse.length; i++)
+        for (int i = 0; i < inverse.length; i++) {
             inverse[i] = -1;
+        }
 
         // can't use char since R can be as big as 65,536
-        for (int c = 0; c < R; c++)
+        for (int c = 0; c < R; c++) {
             inverse[alphabet[c]] = c;
+        }
     }
 
     // Create a new Alphabet of Unicode chars 0 to R-1
@@ -60,10 +66,12 @@ public class Alphabet {
         this.R = R;
 
         // can't use char since R can be as big as 65,536
-        for (int i = 0; i < R; i++)
+        for (int i = 0; i < R; i++) {
             alphabet[i] = (char) i;
-        for (int i = 0; i < R; i++)
+        }
+        for (int i = 0; i < R; i++) {
             inverse[i] = i;
+        }
     }
 
     // Create a new Alphabet of Unicode chars 0 to 255 (extended ASCII)
@@ -84,8 +92,9 @@ public class Alphabet {
     // return number of bits to represent an index
     public int lgR() {
         int lgR = 0;
-        for (int t = R-1; t >= 1; t /= 2)
+        for (int t = R - 1; t >= 1; t /= 2) {
             lgR++;
+        }
         return lgR;
     }
 
@@ -100,9 +109,10 @@ public class Alphabet {
     // convert String s over this alphabet into a base-R integer
     public int[] toIndices(String s) {
         char[] source = s.toCharArray();
-        int[] target  = new int[s.length()];
-        for (int i = 0; i < source.length; i++)
+        int[] target = new int[s.length()];
+        for (int i = 0; i < source.length; i++) {
             target[i] = toIndex(source[i]);
+        }
         return target;
     }
 
@@ -117,11 +127,11 @@ public class Alphabet {
     // Convert base-R integer into a String over this alphabet
     public String toChars(int[] indices) {
         StringBuilder s = new StringBuilder(indices.length);
-        for (int i = 0; i < indices.length; i++)
+        for (int i = 0; i < indices.length; i++) {
             s.append(toChar(indices[i]));
+        }
         return s.toString();
     }
-
 
 
 }

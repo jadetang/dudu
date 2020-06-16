@@ -1,6 +1,14 @@
 package github.jadetang.dudu.datastructure.trie;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * @author tangsicheng
@@ -35,12 +43,19 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         R = alphabet.R();
     }
 
+    static final boolean valEquals(Object o1, Object o2) {
+        return (o1 == null ? o2 == null : o1.equals(o2));
+    }
 
     @Override
     public V put(String key, V value) {
         validKey(key);
-        if (root == null) root = new Entry<V>(null);
-        if (value == null) return remove(key);
+        if (root == null) {
+            root = new Entry<V>(null);
+        }
+        if (value == null) {
+            return remove(key);
+        }
         return put(root, key, value, 0);
     }
 
@@ -48,7 +63,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         if (key.length() == d) {
             V oldValue = x.value;
             x.value = value;
-            if(oldValue != x.value && x.isEmpty()) {
+            if (oldValue != x.value && x.isEmpty()) {
                 size++;
             }
             x.key = key;
@@ -88,21 +103,17 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
     }
 
     private int longestPrefixOf(Entry<V> x, String query, int d, int length) {
-        if (x == null) return length;
-        if (x.noEmpty()) length = d;
-        if (query.length() == d) return length;
+        if (x == null) {
+            return length;
+        }
+        if (x.noEmpty()) {
+            length = d;
+        }
+        if (query.length() == d) {
+            return length;
+        }
         int index = alphabet.toIndex(query.charAt(d));
         return longestPrefixOf(x.next[index], query, d + 1, length);
-    }
-
-    private final class KeyIterator extends PrivateEntryIterator {
-        KeyIterator(Entry<V> first) {
-            super(first);
-        }
-
-        public String next() {
-            return nextEntry().key;
-        }
     }
 
     @Override
@@ -113,8 +124,12 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
     }
 
     private Entry<V> getEntry(Entry<V> x, String key, int d) {
-        if (x == null) return null;
-        if (key.length() == d) return x;
+        if (x == null) {
+            return null;
+        }
+        if (key.length() == d) {
+            return x;
+        }
         int index = alphabet.toIndex(key.charAt(d));
         return getEntry(x.next[index], key, d + 1);
     }
@@ -137,7 +152,9 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
 
 
     private V removeEntry(Entry<V> x, String key, int d) {
-        if (x == null ) return null;
+        if (x == null) {
+            return null;
+        }
         if (key.length() == d) {
             V oldValue = x.value;
             x.value = null;
@@ -166,7 +183,9 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
     }
 
     private void nullEntryRecursive(Entry<V> x) {
-        if (x == null || x == root ) return;
+        if (x == null || x == root) {
+            return;
+        }
         //Entry<V> parent = x.parent == null ? null : x.parent;
         if (isLeaf(x) && !x.noEmpty()) {
             x.next = null;
@@ -190,7 +209,9 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
 
 
     private void validKey(Object key) {
-        if (key == null) throw new NullPointerException("tire do not permit null key");
+        if (key == null) {
+            throw new NullPointerException("tire do not permit null key");
+        }
     }
 
     private Entry<V> successor(Entry<V> x) {
@@ -295,21 +316,61 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         return i;
     }
 
+    @Override
+    public Set<Map.Entry<String, V>> entrySet() {
+        EntrySet es = entrySet;
+        return (es != null) ? es : (entrySet = new EntrySet());
+    }
 
+    @Override
+    public boolean containsValue(Object value) {
+        for (Entry<V> e = getFirstEntry(); e != null; e = successor(e)) {
+            if (valEquals(value, e.value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Collection<V> values() {
+        Collection<V> vs = values;
+        return (vs != null) ? vs : (values = new Values());
+    }
+
+    public Set<String> keySet() {
+        Set<String> ks = keySet;
+        return (ks != null ? ks : (keySet = new KeySet()));
+    }
+
+    private Entry<V> getFirstEntry() {
+        return successor(root);
+    }
+
+    private final class KeyIterator extends PrivateEntryIterator {
+
+        KeyIterator(Entry<V> first) {
+            super(first);
+        }
+
+        public String next() {
+            return nextEntry().key;
+        }
+    }
 
     private class Entry<V> implements Map.Entry<String, V> {
+
         String key;
         V value;
         Entry<V>[] next;
         Entry<V> parent;
 
-        private boolean noEmpty() {
-            return key != null;
-        }
-
         public Entry(Entry<V> parent) {
             this.parent = parent;
             next = (Entry<V>[]) new Entry[R];
+        }
+
+        private boolean noEmpty() {
+            return key != null;
         }
 
         @Override
@@ -339,17 +400,8 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         }
     }
 
-    @Override
-    public Set<Map.Entry<String, V>> entrySet() {
-        EntrySet es = entrySet;
-        return (es != null) ? es : (entrySet = new EntrySet());
-    }
-
-    static final boolean valEquals(Object o1, Object o2) {
-        return (o1 == null ? o2 == null : o1.equals(o2));
-    }
-
     private abstract class PrivateEntryIterator<T> implements Iterator<T> {
+
         Entry<V> next;
         Entry<V> lastReturned;
         int expectedModCount;
@@ -366,10 +418,12 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
 
         final Entry<V> nextEntry() {
             Entry<V> e = next;
-            if (e == null)
+            if (e == null) {
                 throw new NoSuchElementException();
-            if (modCount != expectedModCount)
+            }
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
             next = successor(e);
             lastReturned = e;
             return e;
@@ -377,28 +431,32 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
 
         final Entry<V> prevEntry() {
             Entry<V> e = next;
-            if (e == null)
+            if (e == null) {
                 throw new NoSuchElementException();
-            if (modCount != expectedModCount)
+            }
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
             next = predecessor(e);
             lastReturned = e;
             return e;
         }
 
         public void remove() {
-            if (lastReturned == null)
+            if (lastReturned == null) {
                 throw new IllegalStateException();
-            if (modCount != expectedModCount)
+            }
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
             removeEntry(root, lastReturned.getKey(), 0);
             expectedModCount = modCount;
             lastReturned = null;
         }
     }
 
-
     private final class EntryIterator extends PrivateEntryIterator<Map.Entry<String, V>> {
+
         EntryIterator(Entry<V> first) {
             super(first);
         }
@@ -408,8 +466,8 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         }
     }
 
-
     private class EntryWithPrefixIterable implements Iterable<Map.Entry<String, V>> {
+
         private Entry<V> startEntry;
 
         EntryWithPrefixIterable(Entry<V> start) {
@@ -423,6 +481,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
     }
 
     private class ValueWithPrefixIterable implements Iterable<V> {
+
         private Entry<V> startEntry;
 
         ValueWithPrefixIterable(Entry<V> start) {
@@ -436,6 +495,7 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
     }
 
     private class KeyWithPrefixIterable implements Iterable<String> {
+
         private Entry<V> startEntry;
 
         KeyWithPrefixIterable(Entry<V> start) {
@@ -448,7 +508,6 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         }
     }
 
-
     private class EntrySet extends AbstractSet<Map.Entry<String, V>> {
 
         @Override
@@ -457,8 +516,9 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         }
 
         public boolean contains(Object o) {
-            if (!(o instanceof Map.Entry))
+            if (!(o instanceof Map.Entry)) {
                 return false;
+            }
             Map.Entry<String, V> entry = (Map.Entry<String, V>) o;
             V value = entry.getValue();
             Entry<V> p = getEntry(root, entry.getKey(), 0);
@@ -466,8 +526,9 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         }
 
         public boolean remove(Object o) {
-            if (!(o instanceof Map.Entry))
+            if (!(o instanceof Map.Entry)) {
                 return false;
+            }
             Map.Entry<String, V> entry = (Map.Entry<String, V>) o;
             V value = entry.getValue();
             Entry<V> p = getEntry(root, entry.getKey(), 0);
@@ -485,25 +546,6 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         public void clear() {
             TrieMap.this.clear();
         }
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        for (Entry<V> e = getFirstEntry(); e != null; e = successor(e))
-            if (valEquals(value, e.value))
-                return true;
-        return false;
-    }
-
-
-    public Collection<V> values() {
-        Collection<V> vs = values;
-        return (vs != null) ? vs : (values = new Values());
-    }
-
-    public Set<String> keySet() {
-        Set<String> ks = keySet;
-        return (ks != null ? ks : (keySet = new KeySet()));
     }
 
     private final class KeySet extends AbstractSet<String> {
@@ -530,8 +572,8 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
         }
     }
 
-
     private final class ValueIterator extends PrivateEntryIterator<V> {
+
         ValueIterator(Entry<V> first) {
             super(first);
         }
@@ -540,11 +582,6 @@ public class TrieMap<V> extends AbstractMap<String, V> implements Trie<V>, java.
             return nextEntry().value;
         }
     }
-
-    private Entry<V> getFirstEntry() {
-        return successor(root);
-    }
-
 
     private class Values extends AbstractCollection<V> {
 

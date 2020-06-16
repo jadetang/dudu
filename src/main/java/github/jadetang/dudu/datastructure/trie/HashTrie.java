@@ -1,6 +1,13 @@
 package github.jadetang.dudu.datastructure.trie;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author tangsicheng
@@ -10,56 +17,8 @@ import java.util.*;
 public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
 
 
-    static class Entry<V> implements Map.Entry<String, V> {
-
-        String key;
-        V value;
-        HashMap<Character, Entry<V>> children;
-        Entry<V> parent;
-
-        public Entry(Entry<V> parent) {
-            this.parent = parent;
-            children = new HashMap<Character, Entry<V>>();
-        }
-
-
-        @Override
-        public String getKey() {
-            return key;
-        }
-
-        private boolean noEmpty() {
-            return key != null;
-        }
-
-        private boolean isEmpty() {
-            return !noEmpty();
-        }
-
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public V setValue(V newValue) {
-            V oldValue = value;
-            value = newValue;
-            return oldValue;
-        }
-
-        @Override
-        public String toString() {
-            return getKey() + "=" + getValue();
-        }
-    }
-
-
     private int size = 0;
     private Entry<V> root;
-
-
     public HashTrie() {
         size = 0;
         root = new Entry<V>(null);
@@ -72,9 +31,15 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
     }
 
     private int longestPrefixOf(Entry<V> x, String query, int d, int length) {
-        if (x == null) return length;
-        if (x.noEmpty()) length = d;
-        if (query.length() == d) return length;
+        if (x == null) {
+            return length;
+        }
+        if (x.noEmpty()) {
+            length = d;
+        }
+        if (query.length() == d) {
+            return length;
+        }
         char index = query.charAt(d);
         return longestPrefixOf(x.children.get(index), query, d + 1, length);
     }
@@ -82,7 +47,7 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
     @Override
     public Iterable<String> keysWithPrefix(String prefix) {
         List<String> result = new LinkedList<String>();
-        for (Map.Entry<String,V> v: entryWithPrefix(prefix)){
+        for (Map.Entry<String, V> v : entryWithPrefix(prefix)) {
             result.add(v.getKey());
         }
         return result;
@@ -90,14 +55,14 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
 
     @Override
     public Iterable<Map.Entry<String, V>> entryWithPrefix(String prefix) {
-        Entry<V> startEntry = getEntry(root,prefix,0);
+        Entry<V> startEntry = getEntry(root, prefix, 0);
         return entryWithStart(startEntry);
     }
 
     @Override
     public Iterable<V> valuesWithPrefix(String prefix) {
         List<V> result = new LinkedList<V>();
-        for (Map.Entry<String,V> v: entryWithPrefix(prefix)){
+        for (Map.Entry<String, V> v : entryWithPrefix(prefix)) {
             result.add(v.getValue());
         }
         return result;
@@ -118,11 +83,6 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
         return get(key) != null;
     }
 
-    /*@Override
-    public boolean containsValue(Object value) {
-        return false;
-    }*/
-
     @Override
     public V get(Object key) {
         if (key == null || !(key instanceof String)) {
@@ -138,9 +98,18 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
         }
     }
 
+    /*@Override
+    public boolean containsValue(Object value) {
+        return false;
+    }*/
+
     private Entry<V> getEntry(Entry<V> x, String key, int d) {
-        if (x == null) return null;
-        if (key.length() == d) return x;
+        if (x == null) {
+            return null;
+        }
+        if (key.length() == d) {
+            return x;
+        }
         char index = key.charAt(d);
         return getEntry(x.children.get(index), key, d + 1);
     }
@@ -148,8 +117,12 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
     @Override
     public V put(String key, V value) {
         checkStrKey(key);
-        if (value == null) return remove(key);
-        if (root == null ) root = new Entry<V>(null);
+        if (value == null) {
+            return remove(key);
+        }
+        if (root == null) {
+            root = new Entry<V>(null);
+        }
         return put(root, key, value, 0);
     }
 
@@ -193,7 +166,9 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
     }
 
     private V removeEntry(Entry<V> x, String key, int d) {
-        if (x == null) return null;
+        if (x == null) {
+            return null;
+        }
         if (key.length() == d) {
             V oldValue = x.value;
             x.value = null;
@@ -229,27 +204,25 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
 
     }
 
-
     @Override
     public void clear() {
         size = 0;
         root = null;
     }
 
-   /* @Override
-    public Set<String> keySet() {
-        return null;
-    }
+    /* @Override
+     public Set<String> keySet() {
+         return null;
+     }
 
-    @Override
-    public Collection<V> values() {
-        return null;
-    }*/
+     @Override
+     public Collection<V> values() {
+         return null;
+     }*/
     @Override
     public Set<Map.Entry<String, V>> entrySet() {
         return entryWithStart(root);
     }
-
 
     private Set<Map.Entry<String, V>> entryWithStart(Entry<V> start) {
         HashSet<Map.Entry<String, V>> collector = new HashSet<Map.Entry<String, V>>();
@@ -267,6 +240,51 @@ public class HashTrie<V> extends AbstractMap<String, V> implements Trie<V> {
             for (Entry<V> v : x.children.values()) {
                 entryWithStartHelper(v, collector);
             }
+        }
+    }
+
+    static class Entry<V> implements Map.Entry<String, V> {
+
+        String key;
+        V value;
+        HashMap<Character, Entry<V>> children;
+        Entry<V> parent;
+
+        public Entry(Entry<V> parent) {
+            this.parent = parent;
+            children = new HashMap<Character, Entry<V>>();
+        }
+
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        private boolean noEmpty() {
+            return key != null;
+        }
+
+        private boolean isEmpty() {
+            return !noEmpty();
+        }
+
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(V newValue) {
+            V oldValue = value;
+            value = newValue;
+            return oldValue;
+        }
+
+        @Override
+        public String toString() {
+            return getKey() + "=" + getValue();
         }
     }
 }

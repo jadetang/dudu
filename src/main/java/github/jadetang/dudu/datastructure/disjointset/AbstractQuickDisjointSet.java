@@ -1,9 +1,13 @@
 package github.jadetang.dudu.datastructure.disjointset;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.*;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by jadetang on 15-4-4.
@@ -11,11 +15,11 @@ import java.util.*;
 public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
 
 
+    protected static int DEFAULT_SIZE = 10;
     protected int id[];
     protected Map<T, Integer> indexMap = new HashMap();
-    protected int count= 0;
+    protected int count = 0;
     protected int size = 0;
-    protected static int DEFAULT_SIZE = 10;
 
     public AbstractQuickDisjointSet(Set<T> set) {
         Set<T> tempSet = new HashSet<>(set);
@@ -30,8 +34,8 @@ public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
         }
     }
 
-    public AbstractQuickDisjointSet(){
-        id = new int[DEFAULT_SIZE+1];
+    public AbstractQuickDisjointSet() {
+        id = new int[DEFAULT_SIZE + 1];
     }
 
     @Override
@@ -44,7 +48,6 @@ public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
         return count;
     }
 
-
     @Override
     public void add(T t) {
         if (indexMap.keySet().contains(t)) {
@@ -53,20 +56,19 @@ public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
             if (isFull()) {
                 resize();
             }
-            indexMap.put(t,++size);
+            indexMap.put(t, ++size);
             id[size] = size;
             count++;
         }
     }
 
     private boolean isFull() {
-        return size == id.length -1 ;
+        return size == id.length - 1;
     }
 
     private void resize() {
         id = Arrays.copyOf(id, id.length * 2 - 1);
     }
-
 
     protected int indexOf(T p) {
         Integer index = indexMap.get(p);
@@ -77,22 +79,21 @@ public abstract class AbstractQuickDisjointSet<T> implements DisjointSet<T> {
         Map<Integer, Set<T>> collector = new HashMap<>();
         for (T key : indexMap.keySet()) {
             int index = find(key);
-            Optional<Set<T>> set = Optional.fromNullable(collector.get(index));
+            Optional<Set<T>> set = Optional.ofNullable(collector.get(index));
             if (set.isPresent()) {
                 set.get().add(key);
             } else {
-                Set<T> temp = Sets.newHashSet();
+                Set<T> temp = new HashSet<>();
                 temp.add(key);
                 collector.put(index, temp);
             }
         }
-        return Lists.newLinkedList(collector.values());
+        return new LinkedList<>(collector.values());
     }
 
     @Override
     public String toString() {
         return collect().toString();
     }
-
 
 }

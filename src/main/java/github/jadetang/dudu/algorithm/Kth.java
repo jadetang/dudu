@@ -8,10 +8,12 @@ import java.util.Random;
  * @since 1.0
  */
 public class Kth {
-    private Kth(){}
+
+    private Kth() {
+    }
+
     /**
-     * find the kth smallest element of a array,return null if
-     * the param k is out of the arrange of array
+     * find the kth smallest element of a array,return null if the param k is out of the arrange of array
      */
     public static Comparable kth(Comparable[] array, int k) {
         k--;
@@ -20,15 +22,20 @@ public class Kth {
         int hi = array.length - 1;
         while (hi > lo) {
             int j = partition(array, lo, hi);
-            if (j == k) return array[k];
-            else if (j > k) hi = j - 1;
-            else if (j < k) lo = j + 1;
+            if (j == k) {
+                return array[k];
+            } else if (j > k) {
+                hi = j - 1;
+            } else if (j < k) {
+                lo = j + 1;
+            }
         }
         return array[k];
     }
 
     /**
      * patition a array
+     *
      * @param array
      * @param lo
      * @param hi
@@ -38,17 +45,23 @@ public class Kth {
         int i = lo;
         int j = hi + 1;
         Comparable v = array[lo];
-        while(true){
-            while(less(array[++i],v)){
-                if(i==hi) break;
+        while (true) {
+            while (less(array[++i], v)) {
+                if (i == hi) {
+                    break;
+                }
             }
-            while(less(v,array[--j])){
-                if(j==lo) break;
+            while (less(v, array[--j])) {
+                if (j == lo) {
+                    break;
+                }
             }
-            if(i>=j) break;
-            exchange(array,i,j);
+            if (i >= j) {
+                break;
+            }
+            exchange(array, i, j);
         }
-        exchange(array,lo,j);
+        exchange(array, lo, j);
         return j;
     }
 
@@ -66,6 +79,7 @@ public class Kth {
 
     /**
      * shuffle a array
+     *
      * @param array
      */
 

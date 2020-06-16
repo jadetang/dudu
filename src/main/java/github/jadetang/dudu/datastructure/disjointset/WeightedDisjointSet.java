@@ -12,17 +12,17 @@ public class WeightedDisjointSet<T> extends AbstractQuickDisjointSet<T> {
 
     private int[] sz;
 
-    public WeightedDisjointSet(){
+    public WeightedDisjointSet() {
         super();
-        sz = new int[DEFAULT_SIZE+1];
-        Arrays.fill(sz,0);
+        sz = new int[DEFAULT_SIZE + 1];
+        Arrays.fill(sz, 0);
     }
 
 
     public WeightedDisjointSet(Set<T> set) {
         super(set);
-        sz = new int[set.size()+1];
-        Arrays.fill(sz,1);
+        sz = new int[set.size() + 1];
+        Arrays.fill(sz, 1);
         sz[0] = 0;
     }
 
@@ -30,13 +30,13 @@ public class WeightedDisjointSet<T> extends AbstractQuickDisjointSet<T> {
     public void connect(T p, T q) {
         int rootP = find(p);
         int rootQ = find(q);
-        if(rootP == rootQ ){
+        if (rootP == rootQ) {
             return;
-        }else {
-            if(sz[rootP]< sz[rootQ]){
+        } else {
+            if (sz[rootP] < sz[rootQ]) {
                 id[rootP] = rootQ;
                 sz[rootP] += sz[rootQ];
-            }else{
+            } else {
                 id[rootQ] = rootP;
                 sz[rootQ] += sz[rootP];
             }
@@ -51,21 +51,21 @@ public class WeightedDisjointSet<T> extends AbstractQuickDisjointSet<T> {
         //save all the index along and make all the id[index] to the root
         //after finding the root.
         List<Integer> tempList = new LinkedList<>();
-        while (index != id[index]){
+        while (index != id[index]) {
             tempList.add(index);
             index = id[index];
         }
-        for(Integer i : tempList){
+        for (Integer i : tempList) {
             id[i] = index;
         }
         return index;
     }
 
     @Override
-    public void add(T t){
+    public void add(T t) {
         super.add(t);
-        if( size > sz.length-1){
-            sz = Arrays.copyOf(sz,sz.length*2-1);
+        if (size > sz.length - 1) {
+            sz = Arrays.copyOf(sz, sz.length * 2 - 1);
         }
         sz[size] = 1;
     }

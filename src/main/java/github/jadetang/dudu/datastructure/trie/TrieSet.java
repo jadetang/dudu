@@ -9,9 +9,8 @@ import java.util.Iterator;
  */
 public class TrieSet extends AbstractSet<String> implements TSet, java.io.Serializable {
 
-    private transient TrieMap<Object> trieMap;
-
     private static final Object PRESENT = new Object();
+    private transient TrieMap<Object> trieMap;
 
     public TrieSet() {
         trieMap = new TrieMap<Object>();
@@ -53,7 +52,7 @@ public class TrieSet extends AbstractSet<String> implements TSet, java.io.Serial
 
     @Override
     public boolean remove(Object o) {
-        return trieMap.remove(o) !=null;
+        return trieMap.remove(o) != null;
     }
 
     @Override

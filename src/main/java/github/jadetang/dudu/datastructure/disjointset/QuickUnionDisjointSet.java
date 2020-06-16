@@ -5,7 +5,6 @@ import java.util.Set;
 /**
  * Created by jadetang on 15-4-4.
  */
-@Deprecated
 public class QuickUnionDisjointSet<T> extends AbstractQuickDisjointSet<T> {
 
     public QuickUnionDisjointSet(Set<T> set) {
@@ -16,9 +15,9 @@ public class QuickUnionDisjointSet<T> extends AbstractQuickDisjointSet<T> {
     public void connect(T p, T q) {
         int pRoot = find(p);
         int qRoot = find(q);
-        if(pRoot == qRoot){
+        if (pRoot == qRoot) {
             return;
-        }else{
+        } else {
             id[pRoot] = qRoot;
             count--;
         }
@@ -27,7 +26,7 @@ public class QuickUnionDisjointSet<T> extends AbstractQuickDisjointSet<T> {
     @Override
     public int find(T p) {
         int index = id[indexOf(p)];
-        while (index != id[index]){
+        while (index != id[index]) {
             index = id[index];
         }
         return index;

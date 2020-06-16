@@ -5,7 +5,6 @@ import java.util.Set;
 /**
  * Created by jadetang on 15-4-4.
  */
-@Deprecated
 public class QuickFindDisjointSet<T> extends AbstractQuickDisjointSet<T> {
 
     /**

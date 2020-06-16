@@ -1,62 +1,59 @@
 package github.jadetang.dudu.datastructure.trie;
 
-import com.google.common.collect.Lists;
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
-import java.util.List;
-
 public class TrieSetTest {
 
-    TrieSet t;
-    List<String> list = Lists.newArrayList("one","two","three");
+    TrieSet trie;
 
     @Before
-    public void setUp() throws Exception{
-        t = new TrieSet();
+    public void setUp() {
+        trie = new TrieSet();
     }
 
     @Test
-    public void testAdd() throws Exception {
-        t.add("x");
-        Assert.assertTrue(t.add("y"));
-        Assert.assertFalse(t.add("x"));
+    public void testAdd() {
+        trie.add("x");
+        assertTrue(trie.add("y"));
+        assertFalse(trie.add("x"));
     }
 
     @Test
-    public void testAddAll() throws Exception{
-        t.addAll(list);
+    public void testAddAll() {
+        List<String> list = new ArrayList<>();
+        list.add("one");
+        list.add("two");
+        list.add("three");
+        trie.addAll(list);
+        assertEquals(list.size(), trie.size());
     }
 
     @Test
-    public void testIterator() throws Exception {
-        t.add("a");
-        t.add("b");
-        t.add("c");
-        t.add("e");
-        t.add("f");
-        t.add("g");
-        for (String x:t){
-            System.out.println(x);
+    public void testIterator() {
+        trie.add("a");
+        trie.add("b");
+        trie.add("c");
+        trie.add("e");
+        trie.add("f");
+        trie.add("g");
+        StringBuilder sb = new StringBuilder();
+        for (String x : trie) {
+            sb.append(x);
         }
-
+        assertEquals("abcefg", sb.toString());
     }
 
     @Test
-    public void testSize() throws Exception {
-
-    }
-
-    @Test
-    public void testLongestPrefixOf() throws Exception {
-
-    }
-
-    @Test
-    public void testKeysWithPrefix() throws Exception {
-        Date d  = new Date();
-        System.out.println(d.toString());
+    public void testSize() {
+        trie.add("a");
+        trie.add("a");
+        assertEquals(1, trie.size());
     }
 }

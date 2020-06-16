@@ -1,10 +1,9 @@
 package github.jadetang.dudu.algorithm;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Random;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author tangsicheng
@@ -14,7 +13,6 @@ import java.util.Random;
 public class KthTest {
 
     private Integer[] array = randomArray(1000);
-    private Integer[] orderArray = orderArrary(10);
 
     private Integer[] randomArray(int i) {
         Integer[] array = new Integer[i];
@@ -25,16 +23,8 @@ public class KthTest {
         return array;
     }
 
-    private Integer[] orderArrary(int size){
-        Integer[] array = new Integer[size];
-        for (int j = 0; j < size; j++) {
-            array[j] = j;
-        }
-        return array;
-    }
-
     @Test
-    public void testKth() throws Exception {
+    public void testKth() {
         int k = 22;
         Integer result = (Integer) Kth.kth(array, k);
         Arrays.sort(array);
